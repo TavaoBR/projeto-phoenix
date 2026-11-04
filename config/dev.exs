@@ -4,7 +4,7 @@ import Config
 config :ledger, Ledger.Repo,
   username: "postgres",
   password: "postgres",
-  hostname: "localhost",
+  hostname: System.get_env("DB_HOST", "localhost"),
   database: "ledger_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
