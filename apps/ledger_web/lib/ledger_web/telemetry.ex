@@ -35,7 +35,7 @@ defmodule LedgerWeb.Telemetry do
       opts ->
         [
           {TelemetryMetricsStatsd,
-           metrics: metrics(),
+           metrics: datadog_metrics(),
            host: Keyword.fetch!(opts, :host),
            port: Keyword.get(opts, :port, 8125),
            formatter: :datadog}
@@ -46,6 +46,18 @@ defmodule LedgerWeb.Telemetry do
   # O formato Prometheus não suporta `summary`; usamos as distribuições no lugar.
   defp prometheus_metrics do
     Enum.reject(metrics(), &match?(%Telemetry.Metrics.Summary{}, &1))
+  end
+
+  # No Datadog um nome de métrica tem um tipo só: descarta os summaries (histogram)
+  # que repetem o nome de uma distribution, como phoenix.router_dispatch.stop.duration.
+  defp datadog_metrics do
+    distributions =
+      for %Telemetry.Metrics.Distribution{name: name} <- metrics(), into: MapSet.new(), do: name
+
+    Enum.reject(metrics(), fn
+      %Telemetry.Metrics.Summary{name: name} -> MapSet.member?(distributions, name)
+      _ -> false
+    end)
   end
 
   def metrics do
