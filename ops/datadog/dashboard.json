@@ -1,0 +1,70 @@
+{
+  "title": "Ledger API",
+  "description": "Movimentações, latência HTTP, outbox e consumidor de eventos. Importe em Dashboards → New Dashboard → Import dashboard JSON.",
+  "layout_type": "ordered",
+  "template_variables": [{ "name": "env", "prefix": "env", "default": "*" }],
+  "widgets": [
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Movimentações por tipo e resultado",
+        "requests": [
+          {
+            "q": "count:ledger.transaction.stop.duration{$env} by {type,result}.as_count()",
+            "display_type": "bars"
+          }
+        ]
+      }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Latência p95 das movimentações (ms)",
+        "requests": [{ "q": "p95:ledger.transaction.stop.duration{$env} by {type}", "display_type": "line" }]
+      }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Latência HTTP p95 por rota (ms)",
+        "requests": [{ "q": "p95:phoenix.router_dispatch.stop.duration{$env} by {route}", "display_type": "line" }]
+      }
+    },
+    {
+      "definition": {
+        "type": "query_value",
+        "title": "Backlog do outbox",
+        "precision": 0,
+        "requests": [{ "q": "max:ledger.outbox.pending.count{$env}", "aggregator": "last" }]
+      }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Outbox: publicados vs. falhas",
+        "requests": [
+          { "q": "sum:ledger.outbox.dispatch.published{$env}.as_count()", "display_type": "bars" },
+          { "q": "sum:ledger.outbox.dispatch.failed{$env}.as_count()", "display_type": "bars" }
+        ]
+      }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Consumidor Broadway por resultado",
+        "requests": [
+          { "q": "sum:ledger.notifications.consumed.count{$env} by {result}.as_count()", "display_type": "bars" }
+        ]
+      }
+    },
+    {
+      "definition": {
+        "type": "log_stream",
+        "title": "Erros da aplicação",
+        "query": "service:ledger-api status:error",
+        "columns": ["host", "service"],
+        "indexes": []
+      }
+    }
+  ]
+}

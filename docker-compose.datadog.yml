@@ -1,0 +1,30 @@
+# Camada opcional com o Datadog Agent (métricas DogStatsD + logs dos containers).
+#
+#   DD_API_KEY=<sua chave> docker compose -f docker-compose.yml -f docker-compose.datadog.yml up --build
+#
+# Para contas fora do site US1, defina também DD_SITE (ex.: datadoghq.eu, us5.datadoghq.com).
+services:
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7
+    environment:
+      DD_API_KEY: ${DD_API_KEY:?defina DD_API_KEY com a chave da sua conta Datadog}
+      DD_SITE: ${DD_SITE:-datadoghq.com}
+      # Tags aplicadas a tudo que o agent envia (métricas DogStatsD inclusive).
+      DD_TAGS: "service:ledger-api env:${DD_ENV:-local}"
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
+      DD_LOGS_ENABLED: "true"
+      DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: "true"
+      DD_CONTAINER_EXCLUDE_LOGS: "name:datadog-agent"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    ports: ["8125:8125/udp"]
+
+  app:
+    depends_on: [datadog-agent]
+    environment:
+      DD_AGENT_HOST: datadog-agent
+    labels:
+      # Identifica os logs da aplicação no Datadog (Log Explorer: source:elixir service:ledger-api).
+      com.datadoghq.ad.logs: '[{"source": "elixir", "service": "ledger-api"}]'
