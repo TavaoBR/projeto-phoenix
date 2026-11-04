@@ -1,2 +1,2 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Elixir/Credo esperam LF; evita CRLF em checkouts no Windows.
+* text=auto eol=lf
