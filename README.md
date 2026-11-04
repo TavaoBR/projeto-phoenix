@@ -1,4 +1,4 @@
-# Ledger API: Elixir + Phoenix (umbrella)
+# Ledger API financeira em Elixir/Phoenix umbrella com RabbitMQ, outbox e observabilidade
 
 ![CI](https://github.com/TavaoBR/projeto-phoenix/actions/workflows/ci.yml/badge.svg)
 
