@@ -12,6 +12,17 @@ defmodule LedgerWeb.JSONView do
     }
   end
 
+  def notification(n) do
+    %{
+      id: n.id,
+      kind: n.kind,
+      amount_cents: n.amount_cents,
+      message: n.message,
+      transaction_id: n.transaction_id,
+      inserted_at: n.inserted_at
+    }
+  end
+
   def transaction(t) do
     %{
       id: t.id,

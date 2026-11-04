@@ -13,6 +13,7 @@ defmodule LedgerWeb.Router do
 
     resources "/accounts", AccountController, only: [:index, :create, :show]
     get "/accounts/:id/transactions", TransactionController, :index
+    get "/accounts/:id/notifications", NotificationController, :index
     post "/deposits", TransactionController, :deposit
     post "/transfers", TransactionController, :transfer
   end

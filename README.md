@@ -78,6 +78,7 @@ mix precommit      # compile --warnings-as-errors + format + credo + test
 | `GET` | `/api/accounts` | Lista contas |
 | `GET` | `/api/accounts/:id` | Consulta conta e saldo |
 | `GET` | `/api/accounts/:id/transactions?limit=&offset=` | Extrato paginado |
+| `GET` | `/api/accounts/:id/notifications` | Notificações geradas pelo consumidor de eventos |
 | `POST` | `/api/deposits` | `{account_id, amount_cents}` + `Idempotency-Key` |
 | `POST` | `/api/transfers` | `{from_account_id, to_account_id, amount_cents}` + `Idempotency-Key` |
 

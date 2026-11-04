@@ -1,6 +1,9 @@
 defmodule LedgerWeb.ApiTest do
   use LedgerWeb.ConnCase, async: true
 
+  alias Ledger.{Notifications, Transfers}
+  alias Ledger.Outbox.Event
+
   defp create_account(conn, doc) do
     conn
     |> post(~p"/api/accounts", %{owner_name: "Maria Silva", document: doc})
@@ -72,6 +75,24 @@ defmodule LedgerWeb.ApiTest do
                |> with_key(key)
                |> post(~p"/api/transfers", %{body | amount_cents: 1})
                |> json_response(409)
+    end
+
+    test "lista notificações geradas pelos eventos", %{conn: conn, from: from} do
+      {:ok, tx} = Transfers.deposit(from, 3_000, Ecto.UUID.generate())
+
+      {:ok, 1} =
+        tx
+        |> Event.from_transaction()
+        |> Map.get(:payload)
+        |> Notifications.record_event()
+
+      assert %{"data" => [%{"kind" => "credit", "amount_cents" => 3_000}]} =
+               conn |> get(~p"/api/accounts/#{from}/notifications") |> json_response(200)
+
+      assert %{"error" => %{"code" => "not_found"}} =
+               conn
+               |> get(~p"/api/accounts/#{Ecto.UUID.generate()}/notifications")
+               |> json_response(404)
     end
 
     test "erros de negócio", %{conn: conn, from: from, to: to} do
