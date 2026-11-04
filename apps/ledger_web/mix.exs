@@ -14,7 +14,16 @@ defmodule LedgerWeb.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      # Infraestrutura sem regra de negócio fica fora do cálculo de cobertura.
+      test_coverage: [
+        ignore_modules: [
+          LedgerWeb,
+          LedgerWeb.Application,
+          LedgerWeb.Telemetry,
+          LedgerWeb.ConnCase
+        ]
+      ]
     ]
   end
 

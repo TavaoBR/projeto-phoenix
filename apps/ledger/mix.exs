@@ -13,7 +13,9 @@ defmodule Ledger.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      # Infraestrutura sem regra de negócio fica fora do cálculo de cobertura.
+      test_coverage: [ignore_modules: [Ledger.Release, Ledger.DataCase]]
     ]
   end
 
