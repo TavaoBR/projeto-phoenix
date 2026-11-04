@@ -48,6 +48,21 @@ defmodule LedgerWeb.Telemetry do
         description: "Latência HTTP por rota"
       ),
 
+      # Mensageria (outbox → RabbitMQ → Broadway)
+      sum("ledger.outbox.dispatch.published",
+        description: "Eventos do outbox confirmados pelo RabbitMQ"
+      ),
+      sum("ledger.outbox.dispatch.failed",
+        description: "Tentativas de publicação que falharam (evento segue pendente)"
+      ),
+      last_value("ledger.outbox.pending.count",
+        description: "Eventos aguardando publicação (backlog do outbox)"
+      ),
+      sum("ledger.notifications.consumed.count",
+        tags: [:result],
+        description: "Mensagens processadas pelo consumidor Broadway"
+      ),
+
       # Phoenix Metrics
       summary("phoenix.endpoint.start.system_time",
         unit: {:native, :millisecond}
@@ -112,9 +127,15 @@ defmodule LedgerWeb.Telemetry do
 
   defp periodic_measurements do
     [
-      # A module, function and arguments to be invoked periodically.
-      # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {LedgerWeb, :count_users, []}
+      {__MODULE__, :measure_outbox_backlog, []}
     ]
+  end
+
+  @doc false
+  def measure_outbox_backlog do
+    :telemetry.execute([:ledger, :outbox, :pending], %{count: Ledger.Outbox.pending_count()}, %{})
+  rescue
+    # Banco indisponível (ou sandbox de testes): pula esta amostra sem derrubar o poller.
+    _ in [DBConnection.ConnectionError, DBConnection.OwnershipError] -> :ok
   end
 end

@@ -40,6 +40,26 @@
       "targets": [
         { "expr": "sum by (status) (rate(phoenix_router_dispatch_stop_duration_count[1m]))", "legendFormat": "{{status}}" }
       ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Outbox: backlog e publicações",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "ledger_outbox_pending_count", "legendFormat": "pendentes" },
+        { "expr": "increase(ledger_outbox_dispatch_published[1m])", "legendFormat": "publicados/min" },
+        { "expr": "increase(ledger_outbox_dispatch_failed[1m])", "legendFormat": "falhas/min" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Consumidor Broadway: mensagens por resultado",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum by (result) (increase(ledger_notifications_consumed_count[1m]))", "legendFormat": "{{result}}" }
+      ]
     }
   ]
 }
