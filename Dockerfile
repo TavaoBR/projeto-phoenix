@@ -35,6 +35,6 @@ RUN chown nobody /app
 COPY --from=build --chown=nobody:root /app/_build/prod/rel/ledger_umbrella ./
 USER nobody
 
-EXPOSE 4000 9568
+EXPOSE 4000
 HEALTHCHECK --interval=10s --timeout=3s CMD curl -fs http://localhost:4000/health || exit 1
 CMD ["/bin/sh", "-c", "/app/bin/migrate && /app/bin/server"]

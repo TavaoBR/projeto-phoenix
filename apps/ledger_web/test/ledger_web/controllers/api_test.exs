@@ -15,6 +15,12 @@ defmodule LedgerWeb.ApiTest do
     assert %{"status" => "ok"} = conn |> get(~p"/health") |> json_response(200)
   end
 
+  test "GET /metrics expõe métricas no formato Prometheus", %{conn: conn} do
+    conn = get(conn, ~p"/metrics")
+    assert response(conn, 200) =~ "# TYPE"
+    assert response_content_type(conn, :text) =~ "text/plain"
+  end
+
   describe "accounts" do
     test "cria, consulta e lista", %{conn: conn} do
       id = create_account(conn, "52998224725")

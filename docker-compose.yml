@@ -22,7 +22,7 @@ services:
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:-demo_only_change_me_demo_only_change_me_demo_only_change_me_0000}
       PHX_HOST: localhost
       SENTRY_DSN: ${SENTRY_DSN:-}
-    ports: ["4000:4000", "9568:9568"]
+    ports: ["4000:4000"]
 
   prometheus:
     image: prom/prometheus:v2.54.1

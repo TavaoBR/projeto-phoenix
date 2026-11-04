@@ -2,6 +2,11 @@ defmodule LedgerWeb.Telemetry do
   use Supervisor
   import Telemetry.Metrics
 
+  @prometheus :ledger_prometheus
+
+  @doc "Métricas no formato texto do Prometheus."
+  def scrape, do: TelemetryMetricsPrometheus.Core.scrape(@prometheus)
+
   def start_link(arg) do
     Supervisor.start_link(__MODULE__, arg, name: __MODULE__)
   end
@@ -12,9 +17,8 @@ defmodule LedgerWeb.Telemetry do
       # Telemetry poller will execute the given period measurements
       # every 10_000ms. Learn more here: https://telemetry-metrics.hexdocs.pm
       {:telemetry_poller, measurements: periodic_measurements(), period: 10_000},
-      # Expõe /metrics (porta 9568 por padrão) para o Prometheus/Grafana.
-      {TelemetryMetricsPrometheus,
-       metrics: prometheus_metrics(), port: Application.get_env(:ledger_web, :metrics_port, 9568)}
+      # Agrega as métricas em memória; o GET /metrics (LedgerWeb.MetricsController) as expõe.
+      {TelemetryMetricsPrometheus.Core, metrics: prometheus_metrics(), name: @prometheus}
       # Add reporters as children of your supervision tree.
       # {Telemetry.Metrics.ConsoleReporter, metrics: metrics()}
     ]

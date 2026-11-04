@@ -6,6 +6,7 @@ defmodule LedgerWeb.Router do
   end
 
   get "/health", LedgerWeb.HealthController, :show
+  get "/metrics", LedgerWeb.MetricsController, :index
 
   scope "/api", LedgerWeb do
     pipe_through :api

@@ -54,7 +54,7 @@ docker compose up --build
 ```
 
 - API: http://localhost:4000
-- Métricas: http://localhost:9568/metrics
+- Métricas: http://localhost:4000/metrics
 - Grafana: http://localhost:3000 (dashboard **Ledger API**, acesso anônimo)
 
 ### Local
@@ -73,6 +73,7 @@ mix precommit      # compile --warnings-as-errors + format + credo + test
 | Método | Rota | Descrição |
 |---|---|---|
 | `GET` | `/health` | Saúde da aplicação e do banco |
+| `GET` | `/metrics` | Métricas no formato Prometheus |
 | `POST` | `/api/accounts` | Abre conta `{owner_name, document, currency?}` |
 | `GET` | `/api/accounts` | Lista contas |
 | `GET` | `/api/accounts/:id` | Consulta conta e saldo |

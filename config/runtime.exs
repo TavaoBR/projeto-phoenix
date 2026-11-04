@@ -21,10 +21,6 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_paths: [File.cwd!()]
 
-config :ledger_web, metrics_port: String.to_integer(System.get_env("METRICS_PORT", "9568"))
-
-if config_env() == :test, do: config(:ledger_web, metrics_port: 9569)
-
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
