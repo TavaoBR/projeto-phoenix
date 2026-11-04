@@ -1,0 +1,45 @@
+{
+  "title": "Ledger API",
+  "uid": "ledger-api",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Movimentações por segundo (tipo / resultado)",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum by (type, result) (rate(ledger_transaction_stop_duration_count[1m]))", "legendFormat": "{{type}} {{result}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latência p95 das movimentações (ms)",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le, type) (rate(ledger_transaction_stop_duration_bucket[1m])))", "legendFormat": "{{type}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latência HTTP p95 por rota (ms)",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum by (le, route) (rate(phoenix_router_dispatch_stop_duration_bucket[1m])))", "legendFormat": "{{route}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Respostas HTTP por status",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum by (status) (rate(phoenix_router_dispatch_stop_duration_count[1m]))", "legendFormat": "{{status}}" }
+      ]
+    }
+  ]
+}
