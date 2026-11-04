@@ -10,6 +10,10 @@ import Config
 config :ledger_web, LedgerWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
+if System.get_env("PHX_SERVER") do
+  config :ledger_web, LedgerWeb.Endpoint, server: true
+end
+
 # Sentry: só envia eventos quando SENTRY_DSN está definido.
 config :sentry,
   dsn: System.get_env("SENTRY_DSN"),

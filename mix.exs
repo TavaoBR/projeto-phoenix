@@ -8,7 +8,10 @@ defmodule Ledger.Umbrella.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      releases: [
+        ledger_umbrella: [applications: [ledger: :permanent, ledger_web: :permanent]]
+      ]
     ]
   end
 
