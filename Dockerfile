@@ -11,6 +11,7 @@ RUN mix local.hex --force && mix local.rebar --force
 # Copia só o que define dependências primeiro para aproveitar cache de camadas.
 COPY mix.exs mix.lock ./
 COPY apps/ledger/mix.exs apps/ledger/
+COPY apps/ledger_events/mix.exs apps/ledger_events/
 COPY apps/ledger_web/mix.exs apps/ledger_web/
 COPY config/config.exs config/prod.exs config/
 RUN mix deps.get --only prod && mix deps.compile
