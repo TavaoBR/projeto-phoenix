@@ -19,6 +19,13 @@ defmodule Ledger.TransfersTest do
       assert acc.balance_cents == 0
     end
 
+    test "lista contas e retorna not_found para ids inexistentes ou inválidos" do
+      acc = account!()
+      assert acc.id in Enum.map(Accounts.list_accounts(), & &1.id)
+      assert {:error, :not_found} = Accounts.fetch_account(Ecto.UUID.generate())
+      assert {:error, :not_found} = Accounts.fetch_account("nao-e-uuid")
+    end
+
     test "rejeita documento inválido e duplicado" do
       assert {:error, cs} = Accounts.open_account(%{owner_name: "Ana", document: "123"})
       assert errors_on(cs).document
