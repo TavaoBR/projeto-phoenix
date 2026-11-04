@@ -10,6 +10,10 @@ import Config
 config :ledger_web, LedgerWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
+config :ledger_web, metrics_port: String.to_integer(System.get_env("METRICS_PORT", "9568"))
+
+if config_env() == :test, do: config(:ledger_web, metrics_port: 9569)
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

@@ -43,7 +43,8 @@ defmodule LedgerWeb.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:ledger, in_umbrella: true},
       {:jason, "~> 1.2"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:telemetry_metrics_prometheus, "~> 1.1"}
     ]
   end
 

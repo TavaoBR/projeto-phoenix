@@ -11,7 +11,10 @@ defmodule LedgerWeb.Telemetry do
     children = [
       # Telemetry poller will execute the given period measurements
       # every 10_000ms. Learn more here: https://telemetry-metrics.hexdocs.pm
-      {:telemetry_poller, measurements: periodic_measurements(), period: 10_000}
+      {:telemetry_poller, measurements: periodic_measurements(), period: 10_000},
+      # Expõe /metrics (porta 9568 por padrão) para o Prometheus/Grafana.
+      {TelemetryMetricsPrometheus,
+       metrics: prometheus_metrics(), port: Application.get_env(:ledger_web, :metrics_port, 9568)}
       # Add reporters as children of your supervision tree.
       # {Telemetry.Metrics.ConsoleReporter, metrics: metrics()}
     ]
@@ -19,8 +22,28 @@ defmodule LedgerWeb.Telemetry do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
+  # O formato Prometheus não suporta `summary`; usamos as distribuições no lugar.
+  defp prometheus_metrics do
+    Enum.reject(metrics(), &match?(%Telemetry.Metrics.Summary{}, &1))
+  end
+
   def metrics do
     [
+      # Métricas de negócio (emitidas por Ledger.Transfers via :telemetry.span)
+      distribution("ledger.transaction.stop.duration",
+        tags: [:type, :result],
+        unit: {:native, :millisecond},
+        reporter_options: [buckets: [5, 10, 25, 50, 100, 250, 500, 1000]],
+        description: "Duração e volume (_count) de movimentações por tipo e resultado"
+      ),
+      distribution("phoenix.router_dispatch.stop.duration",
+        tags: [:route, :status],
+        tag_values: &Map.put(&1, :status, &1.conn.status),
+        unit: {:native, :millisecond},
+        reporter_options: [buckets: [5, 10, 25, 50, 100, 250, 500, 1000]],
+        description: "Latência HTTP por rota"
+      ),
+
       # Phoenix Metrics
       summary("phoenix.endpoint.start.system_time",
         unit: {:native, :millisecond}
