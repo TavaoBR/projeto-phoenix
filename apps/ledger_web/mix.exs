@@ -44,7 +44,9 @@ defmodule LedgerWeb.MixProject do
       {:ledger, in_umbrella: true},
       {:jason, "~> 1.2"},
       {:bandit, "~> 1.5"},
-      {:telemetry_metrics_prometheus, "~> 1.1"}
+      {:telemetry_metrics_prometheus, "~> 1.1"},
+      {:sentry, "~> 11.0"},
+      {:hackney, "~> 1.20"}
     ]
   end
 

@@ -7,6 +7,9 @@ defmodule LedgerWeb.Application do
 
   @impl true
   def start(_type, _args) do
+    # Encaminha crashes/erros logados para o Sentry.
+    :logger.add_handler(:sentry_handler, Sentry.LoggerHandler, %{})
+
     children = [
       LedgerWeb.Telemetry,
       # Start a worker by calling: LedgerWeb.Worker.start_link(arg)

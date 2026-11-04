@@ -32,3 +32,5 @@ config :phoenix,
 
 # Porta separada para não colidir com um servidor de dev rodando.
 config :ledger_web, metrics_port: 9569
+
+config :sentry, dsn: nil
