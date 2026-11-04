@@ -7,16 +7,20 @@ definitions:
       image: postgres:16-alpine
       variables:
         POSTGRES_PASSWORD: postgres
+    rabbitmq:
+      image: rabbitmq:4.1-management-alpine
   caches:
     mix-deps: deps
     mix-build: _build
   steps:
     - step: &test
         name: Build, lint e testes
-        services: [postgres]
+        services: [postgres, rabbitmq]
         caches: [mix-deps, mix-build]
         script:
-          - export MIX_ENV=test DB_HOST=localhost
+          - export MIX_ENV=test DB_HOST=localhost RABBITMQ_URL=amqp://guest:guest@localhost:5672
+          # Os serviços sobem junto com o step; espera o broker aceitar conexões.
+          - for i in $(seq 30); do (echo > /dev/tcp/localhost/5672) 2>/dev/null && break; sleep 2; done
           - apt-get update -y && apt-get install -y build-essential git
           - mix local.hex --force && mix local.rebar --force
           - mix deps.get

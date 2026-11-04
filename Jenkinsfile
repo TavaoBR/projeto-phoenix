@@ -5,6 +5,7 @@ pipeline {
   environment {
     MIX_ENV = 'test'
     DB_CONTAINER = "ledger-pg-${env.BUILD_NUMBER}"
+    MQ_CONTAINER = "ledger-mq-${env.BUILD_NUMBER}"
   }
 
   options {
@@ -13,10 +14,12 @@ pipeline {
   }
 
   stages {
-    stage('Postgres') {
+    stage('Postgres e RabbitMQ') {
       steps {
         sh 'docker run -d --name $DB_CONTAINER -e POSTGRES_PASSWORD=postgres postgres:16-alpine'
+        sh 'docker run -d --name $MQ_CONTAINER rabbitmq:4.1-management-alpine'
         sh 'until docker exec $DB_CONTAINER pg_isready -U postgres; do sleep 1; done'
+        sh 'until docker exec $MQ_CONTAINER rabbitmq-diagnostics -q ping; do sleep 2; done'
       }
     }
 
@@ -24,7 +27,8 @@ pipeline {
       agent {
         docker {
           image 'hexpm/elixir:1.18.4-erlang-27.3.4-debian-bookworm-20260610-slim'
-          args "--link ${env.DB_CONTAINER}:db -e DB_HOST=db"
+          args "--link ${env.DB_CONTAINER}:db --link ${env.MQ_CONTAINER}:mq " +
+               "-e DB_HOST=db -e RABBITMQ_URL=amqp://guest:guest@mq:5672"
           reuseNode true
         }
       }
@@ -55,6 +59,6 @@ pipeline {
   }
 
   post {
-    always { sh 'docker rm -f $DB_CONTAINER || true' }
+    always { sh 'docker rm -f $DB_CONTAINER $MQ_CONTAINER || true' }
   }
 }
