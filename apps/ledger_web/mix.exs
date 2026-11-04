@@ -54,6 +54,7 @@ defmodule LedgerWeb.MixProject do
       {:jason, "~> 1.2"},
       {:bandit, "~> 1.5"},
       {:telemetry_metrics_prometheus_core, "~> 1.2"},
+      {:telemetry_metrics_statsd, "~> 0.7.2"},
       {:sentry, "~> 14.0"},
       {:finch, "~> 0.21"}
     ]

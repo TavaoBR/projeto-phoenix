@@ -19,11 +19,28 @@ defmodule LedgerWeb.Telemetry do
       {:telemetry_poller, measurements: periodic_measurements(), period: 10_000},
       # Agrega as métricas em memória; o GET /metrics (LedgerWeb.MetricsController) as expõe.
       {TelemetryMetricsPrometheus.Core, metrics: prometheus_metrics(), name: @prometheus}
-      # Add reporters as children of your supervision tree.
-      # {Telemetry.Metrics.ConsoleReporter, metrics: metrics()}
     ]
 
-    Supervisor.init(children, strategy: :one_for_one)
+    Supervisor.init(children ++ datadog_reporter(), strategy: :one_for_one)
+  end
+
+  # Envia as mesmas métricas ao Datadog Agent via DogStatsD (UDP, formato com tags).
+  # Só liga quando DD_AGENT_HOST está definido (ver config/runtime.exs). As tags
+  # `service`/`env` são aplicadas pelo próprio agent (DD_TAGS no docker-compose).
+  defp datadog_reporter do
+    case Application.get_env(:ledger_web, :datadog) do
+      nil ->
+        []
+
+      opts ->
+        [
+          {TelemetryMetricsStatsd,
+           metrics: metrics(),
+           host: Keyword.fetch!(opts, :host),
+           port: Keyword.get(opts, :port, 8125),
+           formatter: :datadog}
+        ]
+    end
   end
 
   # O formato Prometheus não suporta `summary`; usamos as distribuições no lugar.

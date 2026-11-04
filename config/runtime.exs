@@ -21,6 +21,12 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_paths: [File.cwd!()]
 
+if dd_host = System.get_env("DD_AGENT_HOST") do
+  config :ledger_web, :datadog,
+    host: dd_host,
+    port: String.to_integer(System.get_env("DD_DOGSTATSD_PORT", "8125"))
+end
+
 if url = System.get_env("RABBITMQ_URL") do
   config :ledger_events, amqp_url: url
 end
