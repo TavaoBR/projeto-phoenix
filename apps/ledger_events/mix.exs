@@ -34,6 +34,8 @@ defmodule LedgerEvents.MixProject do
     [
       {:ledger, in_umbrella: true},
       {:amqp, "~> 4.3"},
+      {:broadway, "~> 1.3"},
+      {:broadway_rabbitmq, "~> 0.8.2"},
       {:jason, "~> 1.2"}
     ]
   end

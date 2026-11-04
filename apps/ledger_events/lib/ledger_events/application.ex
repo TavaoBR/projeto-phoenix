@@ -11,7 +11,10 @@ defmodule LedgerEvents.Application do
   # e cada teste sobe só o que precisa, sem depender de um broker real.
   defp children do
     url = LedgerEvents.config(:amqp_url)
+    relay(url) ++ consumer(url)
+  end
 
+  defp relay(url) do
     if LedgerEvents.config(:relay, true) do
       [
         {LedgerEvents.AMQPPublisher, url: url},
@@ -22,5 +25,11 @@ defmodule LedgerEvents.Application do
     else
       []
     end
+  end
+
+  defp consumer(url) do
+    if LedgerEvents.config(:consumer, true),
+      do: [{LedgerEvents.NotificationPipeline, url: url}],
+      else: []
   end
 end
