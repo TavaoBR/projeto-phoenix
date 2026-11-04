@@ -1,0 +1,39 @@
+# Mesmos estágios do Jenkinsfile e do GitHub Actions: deps → lint → test (→ imagem na main).
+image: hexpm/elixir:1.18.4-erlang-27.3.4-debian-bookworm-20260610-slim
+
+definitions:
+  services:
+    postgres:
+      image: postgres:16-alpine
+      variables:
+        POSTGRES_PASSWORD: postgres
+  caches:
+    mix-deps: deps
+    mix-build: _build
+  steps:
+    - step: &test
+        name: Build, lint e testes
+        services: [postgres]
+        caches: [mix-deps, mix-build]
+        script:
+          - export MIX_ENV=test DB_HOST=localhost
+          - apt-get update -y && apt-get install -y build-essential git
+          - mix local.hex --force && mix local.rebar --force
+          - mix deps.get
+          - mix format --check-formatted
+          - mix compile --warnings-as-errors
+          - mix credo --strict
+          - mix test --cover
+
+pipelines:
+  default:
+    - step: *test
+
+  branches:
+    main:
+      - step: *test
+      - step:
+          name: Imagem Docker
+          services: [docker]
+          script:
+            - docker build -t ledger-umbrella:$BITBUCKET_COMMIT .
