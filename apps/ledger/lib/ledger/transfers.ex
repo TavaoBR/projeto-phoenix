@@ -7,12 +7,15 @@ defmodule Ledger.Transfers do
     * consistência sob concorrência com `SELECT ... FOR UPDATE`, travando as contas
       sempre na mesma ordem (por id) para evitar deadlocks;
     * idempotência: repetir a mesma `idempotency_key` com os mesmos dados devolve a
-      transação original em vez de movimentar dinheiro de novo.
+      transação original em vez de movimentar dinheiro de novo;
+    * entrega de eventos: um `Ledger.Outbox.Event` é gravado no mesmo `Multi`, então
+      todo movimento confirmado gera exatamente um evento a ser publicado.
   """
   import Ecto.Query
 
   alias Ecto.Multi
   alias Ledger.Accounts.Account
+  alias Ledger.Outbox.Event
   alias Ledger.Repo
   alias Ledger.Transfers.Transaction
 
@@ -74,6 +77,7 @@ defmodule Ledger.Transfers do
       to_account_id: to_id,
       idempotency_key: key
     })
+    |> Multi.insert(:outbox, &Event.from_transaction(&1.transaction))
   end
 
   defp transfer_multi(%{from: from_id, to: to_id, amount: amount}, key) do
@@ -91,6 +95,7 @@ defmodule Ledger.Transfers do
       to_account_id: to_id,
       idempotency_key: key
     })
+    |> Multi.insert(:outbox, &Event.from_transaction(&1.transaction))
   end
 
   defp validate_amount(amount) when is_integer(amount) and amount > 0, do: :ok
