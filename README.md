@@ -64,7 +64,7 @@ Requer Elixir 1.18+ e PostgreSQL (usuário/senha `postgres`, ou `DB_HOST` para o
 ```bash
 mix setup          # deps + cria e migra o banco
 mix phx.server
-mix test           # 18 testes, incluindo concorrência
+mix test           # 19 testes, incluindo concorrência
 mix precommit      # compile --warnings-as-errors + format + credo + test
 ```
 
