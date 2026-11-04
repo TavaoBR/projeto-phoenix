@@ -12,16 +12,26 @@ services:
       retries: 10
     volumes: [pgdata:/var/lib/postgresql/data]
 
+  rabbitmq:
+    image: rabbitmq:4.1-management-alpine
+    ports: ["5672:5672", "15672:15672"] # 15672 = painel de gestão (guest/guest)
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      retries: 20
+
   app:
     build: .
     depends_on:
       db: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
     environment:
       DATABASE_URL: ecto://postgres:postgres@db/ledger_prod
       # Apenas para demo local. Em produção, venha de um cofre de segredos.
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:-demo_only_change_me_demo_only_change_me_demo_only_change_me_0000}
       PHX_HOST: localhost
       SENTRY_DSN: ${SENTRY_DSN:-}
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     ports: ["4000:4000"]
 
   prometheus:
