@@ -12,7 +12,7 @@ defmodule Ledger.TransfersConcurrencyTest do
 
     on_exit(fn ->
       :ok = Sandbox.checkout(Repo, sandbox: false)
-      Repo.query!("TRUNCATE transactions, accounts")
+      Repo.query!("TRUNCATE outbox_events, transactions, accounts")
     end)
   end
 
