@@ -40,7 +40,8 @@ defmodule Ledger.Outbox do
     |> order_by(:inserted_at)
     |> limit(^limit)
     |> lock("FOR UPDATE SKIP LOCKED")
-    |> Repo.all()
+    # Consulta de polling (roda a cada segundo): fora do log para não poluí-lo.
+    |> Repo.all(log: false)
   end
 
   defp publish(%Event{} = event, publisher) do
