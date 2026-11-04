@@ -21,6 +21,10 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_paths: [File.cwd!()]
 
+if url = System.get_env("RABBITMQ_URL") do
+  config :ledger_events, amqp_url: url
+end
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

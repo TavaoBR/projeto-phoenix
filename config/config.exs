@@ -13,6 +13,10 @@ import Config
 config :ledger,
   ecto_repos: [Ledger.Repo]
 
+config :ledger_events,
+  amqp_url: "amqp://guest:guest@localhost:5672",
+  relay_interval_ms: 1_000
+
 config :ledger_web,
   ecto_repos: [Ledger.Repo],
   generators: [context_app: :ledger]

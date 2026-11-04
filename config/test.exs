@@ -31,3 +31,6 @@ config :phoenix,
   sort_verified_routes_query_params: true
 
 config :sentry, dsn: nil
+
+# Os testes não dependem de um RabbitMQ rodando.
+config :ledger_events, relay: false, consumer: false

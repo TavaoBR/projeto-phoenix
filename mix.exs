@@ -10,7 +10,9 @@ defmodule Ledger.Umbrella.MixProject do
       aliases: aliases(),
       listeners: [Phoenix.CodeReloader],
       releases: [
-        ledger_umbrella: [applications: [ledger: :permanent, ledger_web: :permanent]]
+        ledger_umbrella: [
+          applications: [ledger: :permanent, ledger_events: :permanent, ledger_web: :permanent]
+        ]
       ]
     ]
   end
